@@ -1,4 +1,4 @@
-# hermes-factchat
+﻿# hermes-factchat
 
 Hermes Agent에 KBS factchat API Gateway를 연결하는 플러그인입니다.
 본인 API 키만 있으면 됩니다. 크레딧은 키를 만든 계정에서 차감됩니다.
@@ -6,7 +6,7 @@ Hermes Agent에 KBS factchat API Gateway를 연결하는 플러그인입니다.
 ## 설치 (Windows, Hermes 터미널)
 
 ```
-hermes plugins install <GitHub계정>/hermes-factchat --enable
+hermes plugins install intak-bs/hermes-factchat --enable
 hermes factchat setup
 ```
 
