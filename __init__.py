@@ -5,6 +5,7 @@ GPT-5 계열은 도구 사용 시 reasoning_effort가 켜져 있으면 400 오�
 reasoning_effort를 none으로 고정한다.
 
   hermes factchat setup    모델 목록을 받아 설정 (설치 후 1회)
+  hermes factchat key      API 키 새로 입력 (401 오류 시)
   hermes factchat status   현재 연결 상태 확인
   /factchat                대화 중 상태 확인
 """
@@ -101,7 +102,8 @@ def setup(model: str | None = None, test: bool = True) -> str:
     try:
         models = _fetch_models(key)
     except urllib.error.HTTPError as e:
-        return f"키 확인 실패 (HTTP {e.code}). 키가 맞는지 확인하세요."
+        hint = " `hermes factchat key`로 키를 다시 넣으세요." if e.code in (401, 403) else ""
+        return f"키 확인 실패 (HTTP {e.code}).{hint}"
     except Exception as e:
         return f"factchat 서버에 연결하지 못했습니다: {e}"
     if not models:
@@ -149,11 +151,33 @@ def _setup_argparse(subparser) -> None:
     p.add_argument("--model", help="기본 모델 지정 (기본: gpt-5.6-luna)")
     p.add_argument("--no-test", action="store_true", help="테스트 호출 생략")
     subs.add_parser("status", help="연결 상태 확인")
+    subs.add_parser("key", help="API 키를 새로 입력하고 setup 실행")
     subparser.set_defaults(func=_cli)
 
 
+def _set_key() -> str | None:
+    from hermes_cli.config import save_env_value
+    from hermes_cli.secret_prompt import masked_secret_prompt
+
+    try:
+        value = masked_secret_prompt(f"{KEY_ENV} (화면에 안 보입니다): ").strip()
+    except (EOFError, KeyboardInterrupt):
+        return None
+    if not value:
+        return None
+    save_env_value(KEY_ENV, value)
+    os.environ[KEY_ENV] = value
+    return value
+
+
 def _cli(args) -> None:
-    if getattr(args, "factchat_command", None) == "setup":
+    command = getattr(args, "factchat_command", None)
+    if command == "key":
+        if not _set_key():
+            print("키를 입력하지 않아 그대로 둡니다.")
+            return
+        print(setup())
+    elif command == "setup":
         print(setup(model=args.model, test=not args.no_test))
     else:
         print(status())
