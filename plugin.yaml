@@ -1,0 +1,10 @@
+name: factchat
+version: 1.0.0
+description: "KBS factchat API Gateway(OpenAI 호환)를 Hermes 모델 제공자로 연결한다. 설치 때 API 키만 입력하면 된다."
+author: KBS 창원총국 기술국
+kind: standalone
+requires_env:
+  - name: FACTCHAT_API_KEY
+    description: "factchat(BAZE) API Gateway 키 — 크레딧은 키를 만든 계정에서 차감"
+    url: "https://docs.factchat.kr/docs/kbs/api-gateway/getting-started/overview"
+    secret: true
